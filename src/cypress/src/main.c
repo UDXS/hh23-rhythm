@@ -79,9 +79,9 @@ int main(void) {
   /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
   printf("\x1b[2J\x1b[;H");
 
-  printf("********************************************************\n"
-		 "help me lord\n"
-		 "********************************************************\n");
+  printf("********************************************************\r\n"
+		 "help me lord\r\n"
+		 "********************************************************\r\n");
 
   /* Initiate first scan */
   Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
@@ -164,6 +164,28 @@ static void process_touch(void) {
   /* Update the LED state if requested */
   if (led_update_req) {
     update_led_state(&led_data);
+
+  }
+
+  if (button0_status != button0_status_prev || button1_status_prev != button1_status || slider_pos_prev != slider_pos) {
+//	  printf("\r\nbutton0_status=%lu, button1_status=%lu, slider_pos=%u, slider_touch_status=%u, led_update_req=%u\r\n",
+//			  button0_status, button1_status, slider_pos, slider_touch_status, led_update_req);
+//		for (int i = 0; i < slider_touch_status; i++) {
+//		  printf("slider_touch_info->ptrPosition[%i].x = %u\r\n", i, slider_touch_info->ptrPosition[i].x);
+//		}
+	  int slider = slider_pos / 5;
+	  for (int i = 0; i < slider; i++) {
+		  printf("=");
+	  }
+	  for (int i = slider; i < 60; i++) {
+		  printf(" ");
+	  }
+	  printf(" ");
+	  if (button0_status != 0) printf(" LEFT");
+	  else printf(" left");
+	  if (button1_status != 0) printf(" RIGHT");
+	  else printf(" right");
+	  printf("\r\n");
   }
 
   /* Update previous touch status */
@@ -171,12 +193,7 @@ static void process_touch(void) {
   button1_status_prev = button1_status;
   slider_pos_prev = slider_pos;
 
-  printf("button0_status=%lu, button1_status=%lu, slider_pos=%u, slider_touch_status=%u, led_update_req=%u",
-		  button0_status, button1_status, slider_pos, slider_touch_status, led_update_req);
-  for (int i = 0; i < slider_touch_status; i++) {
-	  printf("slider_touch_info->ptrPosition[%i].x = %u", i, slider_touch_info->ptrPosition[i].x);
-	  printf("slider_touch_info->ptrPosition[%i].y = %u", i, slider_touch_info->ptrPosition[i].y);
-  }
+
 }
 
 /**
