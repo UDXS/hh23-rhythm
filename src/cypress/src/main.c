@@ -4,6 +4,7 @@
 #include "cycfg.h"
 #include "cycfg_capsense.h"
 #include "cyhal.h"
+#include "cy_retarget_io.h"
 #include "led.h"
 
 #define CAPSENSE_INTR_PRIORITY (7u)
@@ -62,6 +63,10 @@ int main(void) {
   /* Enable global interrupts */
   __enable_irq();
 
+  /* Initialize retarget-io to use the debug UART port. */
+  result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+  if (CYRET_SUCCESS != result) CY_ASSERT(0);
+
   initialize_led();
   initialize_capsense_tuner();
   result = initialize_capsense();
@@ -70,6 +75,13 @@ int main(void) {
     /* Halt the CPU if CapSense initialization failed */
     CY_ASSERT(0);
   }
+
+  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
+  printf("\x1b[2J\x1b[;H");
+
+  printf("********************************************************\n"
+		 "help me lord\n"
+		 "********************************************************\n");
 
   /* Initiate first scan */
   Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
@@ -143,7 +155,7 @@ static void process_touch(void) {
   /* Detect the new touch on slider */
   if ((0 != slider_touch_status) && (slider_pos != slider_pos_prev)) {
     led_data.brightness =
-        (slider_pos * 100) /
+        100 - (slider_pos * 100) /
         cy_capsense_context.ptrWdConfig[CY_CAPSENSE_LINEARSLIDER0_WDGT_ID]
             .xResolution;
     led_update_req = true;
@@ -158,6 +170,13 @@ static void process_touch(void) {
   button0_status_prev = button0_status;
   button1_status_prev = button1_status;
   slider_pos_prev = slider_pos;
+
+  printf("button0_status=%lu, button1_status=%lu, slider_pos=%u, slider_touch_status=%u, led_update_req=%u",
+		  button0_status, button1_status, slider_pos, slider_touch_status, led_update_req);
+  for (int i = 0; i < slider_touch_status; i++) {
+	  printf("slider_touch_info->ptrPosition[%i].x = %u", i, slider_touch_info->ptrPosition[i].x);
+	  printf("slider_touch_info->ptrPosition[%i].y = %u", i, slider_touch_info->ptrPosition[i].y);
+  }
 }
 
 /**

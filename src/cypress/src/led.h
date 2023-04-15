@@ -3,6 +3,8 @@
 #ifndef SOURCE_LED_H_
 #define SOURCE_LED_H_
 
+#include <stdio.h>
+
 /* Allowed duty cycle for maximum brightness */
 #define LED_MAX_BRIGHTNESS (100u)
 
