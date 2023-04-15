@@ -41,8 +41,8 @@
 /*******************************************************************************
 * Include guard
 *******************************************************************************/
-#ifndef SOURCE_LED_H_
-#define SOURCE_LED_H_
+#ifndef SRC_LED_H_
+#define SRC_LED_H_
 
 /*******************************************************************************
 * Global constants
@@ -74,6 +74,6 @@ typedef struct
 cy_rslt_t initialize_led(void);
 void update_led_state(led_data_t *led_data);
 
-#endif /* SOURCE_LED_H_ */
+#endif /* SRC_LED_H_ */
 
 /* [] END OF FILE */
