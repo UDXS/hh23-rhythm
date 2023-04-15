@@ -6,6 +6,10 @@
 #include "cyhal.h"
 #include "cy_retarget_io.h"
 #include "led.h"
+//#include <inttypes.h>
+//#include "cy_pdl.h"
+//#include "cybsp.h"
+//#include "SpiEpmployee.h"
 
 #define CAPSENSE_INTR_PRIORITY (7u)
 #define EZI2C_INTR_PRIORITY                                                    \
@@ -33,6 +37,19 @@ void handle_error(void) {
   CY_ASSERT(0);
 }
 
+// https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
+/* SPI baud rate in Hz */
+#define SPI_FREQ_HZ                (1000000UL)
+/* SPI transfer bits per frame */
+#define BITS_PER_FRAME             (8)
+void handle_eror(uint32_t status)
+{
+    if (status != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+}
+
 /**
  * System entrance point. This function performs
  *
@@ -43,6 +60,7 @@ void handle_error(void) {
  */
 int main(void) {
   cy_rslt_t result;
+  cyhal_spi_t sSPI;
 #if defined(CY_DEVICE_SECURE)
   cyhal_wdt_t wdt_obj;
 
@@ -86,6 +104,22 @@ int main(void) {
   /* Initiate first scan */
   Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
 
+//  status = init_employee();
+//  if(status == INIT_FAILURE) CY_ASSERT(CY_ASSERT_FAILED);
+
+  // https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
+  result = cyhal_spi_init(&sSPI,
+		  CYBSP_QSPI_D3 //CYBSP_SPI_MOSI
+		  ,CYBSP_QSPI_D2   //CYBSP_SPI_MISO
+		  ,CYBSP_QSPI_D1   //CYBSP_SPI_CLK
+		  ,CYBSP_QSPI_D0   //CYBSP_SPI_CS
+		  ,NULL,BITS_PER_FRAME,
+                              CYHAL_SPI_MODE_00_MSB,true);
+  handle_eror(result);
+  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
+  handle_eror(result);
+
+
   for (;;) {
     if (capsense_scan_complete) {
       /* Process all widgets */
@@ -104,6 +138,8 @@ int main(void) {
 
       capsense_scan_complete = false;
     }
+
+
   }
 }
 
@@ -122,6 +158,7 @@ static void process_touch(void) {
   static uint32_t button0_status_prev;
   static uint32_t button1_status_prev;
   static uint16_t slider_pos_prev;
+  static uint16_t slider_status_prev;
   static led_data_t led_data = {LED_ON, LED_MAX_BRIGHTNESS};
 
   /* Get button 0 status */
@@ -167,32 +204,43 @@ static void process_touch(void) {
 
   }
 
-  if (button0_status != button0_status_prev || button1_status_prev != button1_status || slider_pos_prev != slider_pos) {
+  if (button0_status != button0_status_prev || button1_status_prev != button1_status || slider_pos_prev != slider_pos
+		  || slider_status_prev != slider_touch_status) {
 //	  printf("\r\nbutton0_status=%lu, button1_status=%lu, slider_pos=%u, slider_touch_status=%u, led_update_req=%u\r\n",
 //			  button0_status, button1_status, slider_pos, slider_touch_status, led_update_req);
 //		for (int i = 0; i < slider_touch_status; i++) {
 //		  printf("slider_touch_info->ptrPosition[%i].x = %u\r\n", i, slider_touch_info->ptrPosition[i].x);
 //		}
-	  int slider = slider_pos / 5;
-	  for (int i = 0; i < slider; i++) {
-		  printf("=");
-	  }
-	  for (int i = slider; i < 60; i++) {
-		  printf(" ");
+	  if (slider_touch_status) {
+		  int slider = slider_pos / 5;
+		  for (int i = 0; i < slider; i++) {
+			  printf("=");
+		  }
+		  for (int i = slider; i < 60; i++) {
+			  printf(" ");
+		  }
+	  } else {
+		  for (int i = 0; i < 60; i++) {
+			  printf(".");
+		  }
 	  }
 	  printf(" ");
-	  if (button0_status != 0) printf(" LEFT");
-	  else printf(" left");
-	  if (button1_status != 0) printf(" RIGHT");
-	  else printf(" right");
+	  if (button0_status != 0) printf("LEFT");
+	  else printf("left");
+	  if (button1_status != 0) printf("RIGHT");
+	  else printf("right");
 	  printf("\r\n");
+//	  uint32_t     transmit_data = ();
+//	  if (CY_RSLT_SUCCESS == cyhal_spi_send(&sSPI, transmit_data)) {
+//
+//	  }
   }
 
   /* Update previous touch status */
   button0_status_prev = button0_status;
   button1_status_prev = button1_status;
   slider_pos_prev = slider_pos;
-
+  slider_status_prev = slider_touch_status;
 
 }
 
