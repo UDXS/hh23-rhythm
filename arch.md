@@ -4,7 +4,7 @@ There are N elements to this SoC split into two complexes.
 
 The first complex is the CPU complex. It consists of a PicoRV32 core, and two/three Wishbone SPI interfaces.
 
-One/two SPI interface(s) communicate with the Infineon PSoC board(s), running a serial communication firmware that provides finger position data and, optionally, muscle contraction data (SPI0). A second SPI interface (SPI1) interacts with the SD card. This card contains three vital files: game software, image data, rhythm map data, and music data. In the future, this can be structured such that multiple levels can be selected loaded. 
+One SPI interface (SPI0) interacts with the SD card. This card contains three vital files: game software, rhythm map data, and music data.  In the future, this can be structured such that multiple levels can be selected loaded. The other SPI interface (SPI1) communicates with the Infineon PSoC board, running a serial communication firmware that provides finger position data and, optionally, muscle contraction data. 
 
 Startup is a 2-stage process. At power-on, the FPGA is reset and the bitstream is loaded. This includes loading a small Boot ROM. This Boot ROM polls SPI1 until the SD card is detected successfully. It communicates with the card using 1nv1's ulibSD library and ELM-ChaN's FatFs library. This process will copy a 4 MB system image containing the game and Zephyr RTOS from the card to DRAM before closing the SD card interface and jumping to Zephyr's entrypoint.
 
