@@ -46,11 +46,11 @@
 /*******************************************************************************
  * Include header files
  ******************************************************************************/
-#include <src/led.h>
 #include "cybsp.h"
 #include "cyhal.h"
 #include "cycfg.h"
 #include "cycfg_capsense.h"
+#include "led.h"
 
 /*******************************************************************************
 * Macros
@@ -172,7 +172,7 @@ int main(void)
         }
 
     }
-
+    
 }
 
 /*******************************************************************************
@@ -351,7 +351,7 @@ static void initialize_capsense_tuner(void)
     sEzI2C_cfg.slave1_cfg = sEzI2C_sub_cfg;
     sEzI2C_cfg.sub_address_size = CYHAL_EZI2C_SUB_ADDR16_BITS;
     sEzI2C_cfg.two_addresses = false;
-
+    
     result = cyhal_ezi2c_init(&sEzI2C, CYBSP_I2C_SDA, CYBSP_I2C_SCL, NULL, &sEzI2C_cfg);
     if (result != CY_RSLT_SUCCESS)
     {
