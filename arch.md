@@ -42,3 +42,4 @@ void gpu_end_upload(gpu_device* device);
 
 ```
 
+The Display Engine controls HDMI timings using the GOWIN DVI TX soft-IPs. It makes pixel requests to the GE and can notify the CPU when Vsync occurs.
