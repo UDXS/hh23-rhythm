@@ -1,6 +1,8 @@
-# HH23 Rhythm SoC/GPU "Bug32"
+# HH23 Rhythm SoC/GPU "**Bug32**"
 
-There are N elements to this SoC split into two complexes.
+![](etc/Bug32.svg)
+
+There are several elements to this SoC split into two complexes.
 
 The first complex is the CPU complex. It consists of a PicoRV32 core, and two/three Wishbone SPI interfaces.
 
