@@ -1,0 +1,15 @@
+{
+  "name": "javascript-impatience",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "multiple, ig",
+  "license": "SEE LICENSE IN your mom",
+  "dependencies": {
+    "serialport": "^10.5.0"
+  }
+}
