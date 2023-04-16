@@ -122,6 +122,23 @@
           background-position: 30px;
         }
       }
+      #status {
+        position: absolute;
+        bottom: 80px;
+        display: flex;
+        justify-content: space-evenly;
+        height: 30px;
+        align-items: center;
+        margin-bottom: 100px;
+        left: 10px;
+        right: 10px;
+      }
+      .wowzers {
+        width: 3px;
+        border-radius: 5px;
+        height: 100%;
+        background-color: white;
+      }
     </style>
   </head>
   <body>
@@ -136,6 +153,7 @@
         <div class="square target" id="right"></div>
       </div>
       <span class="line"></span>
+      <div id="status"></div>
     </div>
     <div id="note">Click or tap anywhere to connect to the USB.</div>
     <button id="reset">restart</button>
