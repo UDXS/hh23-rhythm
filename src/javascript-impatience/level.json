@@ -141,7 +141,30 @@
       { "type": "left", "time": 33.42 },
       { "type": "right", "time": 33.42 },
       { "type": "left", "time": 33.88 },
-      { "type": "right", "time": 33.88 }
+      { "type": "right", "time": 33.88 },
 
+      { "type": "left", "time": 34.81 },
+      { "type": "qs-right", "time": 34.81 },
+
+        { "type": "left", "time": 35.27 },
+        { "type": "right", "time": 35.27 },
+
+        { "type": "left", "time": 35.74 },
+        { "type": "qs-right", "time": 35.74 },
+
+        { "type": "left", "time": 36.21 },
+        { "type": "right", "time": 36.21 },
+
+        { "type": "left", "time": 36.67 },
+        { "type": "qs-right", "time": 36.67 },
+
+        { "type": "left", "time": 37.15 },
+        { "type": "right", "time": 37.15 },
+
+        { "type": "left", "time": 37.62 },
+        { "type": "qs-right", "time": 37.62 },
+
+        { "type": "left", "time": 38.09 },
+        { "type": "right", "time": 38.09 }
   ]
 }
