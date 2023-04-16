@@ -89,6 +89,20 @@
         margin: 0;
         top: 30px;
       }
+      #reset {
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.5);
+        padding: 2px 5px;
+      }
     </style>
   </head>
   <body>
@@ -105,6 +119,7 @@
       <span class="line"></span>
     </div>
     <div id="note">Click or tap anywhere to connect to the USB.</div>
+    <button id="reset">restart</button>
     <script src="./main.js" type="module"></script>
   </body>
 </html>

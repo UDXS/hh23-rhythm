@@ -43,15 +43,37 @@ async function * packets (port) {
 }
 
 const level = {
-  audio: 'https://sheeptester-forks.github.io/cse110-lab-2/meeting.m4a',
-  obstacles: [
-    { type: 'left', time: 0.9 },
-    { type: 'left', time: 1.8 },
-    { type: 'left', time: 2.7 },
-    { type: 'right', time: 3.1 },
-    { type: 'left', time: 3.5 }
-  ]
+  // this is for the type completion
+  obstacles: [{ type: 'left', time: 0, element: document.body }]
 }
+level.obstacles = []
+const audio = new Audio()
+window.audio = audio
+
+async function reset () {
+  for (const obstacle of level.obstacles) {
+    obstacle.element?.remove()
+  }
+
+  const { obstacles, audio: audioUrl } = await fetch('./level.json').then(r =>
+    r.json()
+  )
+  audio.src = audioUrl
+  audio.currentTime = 0
+  for (const obstacle of obstacles) {
+    obstacle.element = Object.assign(document.createElement('div'), {
+      className: 'square obstacle'
+    })
+    if (obstacle.type === 'left') {
+      leftRow.append(obstacle.element)
+    } else {
+      rightRow.append(obstacle.element)
+    }
+  }
+  level.obstacles = obstacles
+}
+document.getElementById('reset').addEventListener('click', reset)
+reset()
 
 const wow = document.getElementById('wow')
 const leftRow = document.getElementById('left-row')
@@ -59,19 +81,6 @@ const rightRow = document.getElementById('right-row')
 const left = document.getElementById('left')
 const right = document.getElementById('right')
 const scoreDisplay = document.getElementById('score')
-
-const audio = new Audio(level.audio)
-window.audio = audio
-for (const obstacle of level.obstacles) {
-  obstacle.element = Object.assign(document.createElement('div'), {
-    className: 'square obstacle'
-  })
-  if (obstacle.type === 'left') {
-    leftRow.append(obstacle.element)
-  } else {
-    rightRow.append(obstacle.element)
-  }
-}
 
 let tilt = 0
 let targetTilt = 0
