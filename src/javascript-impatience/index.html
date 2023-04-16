@@ -7,9 +7,6 @@
     <title>hard hacc</title>
     <meta name="description" content="No description yet." />
 
-    <link rel="stylesheet" type="text/css" href="/sheep3.css" />
-    <script src="/sheep3.js" charset="utf-8"></script>
-
     <style>
       body {
         background-color: black;
@@ -102,6 +99,28 @@
         cursor: pointer;
         color: rgba(255, 255, 255, 0.5);
         padding: 2px 5px;
+      }
+      .qs {
+        background-color: rgba(255, 111, 250, 0.8);
+        height: 30px;
+        position: absolute;
+        left: 2px;
+        right: 2px;
+        background-image: url('./chevron-right.svg');
+        background-size: contain;
+        animation: slide linear 0.5s infinite;
+      }
+      .qs-left {
+        background-image: url('./chevron-left.svg');
+        animation-direction: reverse;
+      }
+      @keyframes slide {
+        from {
+          background-position: 0;
+        }
+        to {
+          background-position: 30px;
+        }
       }
     </style>
   </head>

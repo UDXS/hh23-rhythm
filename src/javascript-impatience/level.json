@@ -5,6 +5,10 @@
     { "type": "left", "time": 1.8 },
     { "type": "left", "time": 2.7 },
     { "type": "right", "time": 3.1 },
-    { "type": "left", "time": 3.5 }
+    { "type": "left", "time": 3.5 },
+    { "type": "qs-right", "time": 0 },
+    { "type": "qs-left", "time": 0.1 },
+    { "type": "qs-right", "time": 3.9 },
+    { "type": "qs-left", "time": 4.3 }
   ]
 }

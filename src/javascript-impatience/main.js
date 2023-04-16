@@ -46,8 +46,11 @@ const level = {
   // this is for the type completion
   obstacles: [{ type: 'left', time: 0, element: document.body }]
 }
-level.obstacles = []
-const audio = new Audio()
+const { obstacles, audio: audioUrl } = await fetch('./level.json').then(r =>
+  r.json()
+)
+level.obstacles = structuredClone(obstacles)
+const audio = new Audio(audioUrl)
 window.audio = audio
 
 async function reset () {
@@ -55,25 +58,27 @@ async function reset () {
     obstacle.element?.remove()
   }
 
-  const { obstacles, audio: audioUrl } = await fetch('./level.json').then(r =>
-    r.json()
-  )
-  audio.src = audioUrl
   audio.currentTime = 0
-  for (const obstacle of obstacles) {
-    obstacle.element = Object.assign(document.createElement('div'), {
-      className: 'square obstacle'
-    })
-    if (obstacle.type === 'left') {
-      leftRow.append(obstacle.element)
+  level.obstacles = structuredClone(obstacles)
+  for (const obstacle of level.obstacles) {
+    if (obstacle.type === 'left' || obstacle.type === 'right') {
+      obstacle.element = Object.assign(document.createElement('div'), {
+        className: 'square obstacle'
+      })
+      if (obstacle.type === 'left') {
+        leftRow.append(obstacle.element)
+      } else {
+        rightRow.append(obstacle.element)
+      }
     } else {
-      rightRow.append(obstacle.element)
+      obstacle.element = Object.assign(document.createElement('div'), {
+        className: `qs ${obstacle.type}`
+      })
+      wow.append(obstacle.element)
     }
   }
-  level.obstacles = obstacles
 }
 document.getElementById('reset').addEventListener('click', reset)
-reset()
 
 const wow = document.getElementById('wow')
 const leftRow = document.getElementById('left-row')
@@ -104,6 +109,7 @@ function addScore (diff) {
 }
 
 let lastTime = Date.now()
+window.animationId = null
 function paint () {
   const now = Date.now()
   const elapsed = now - lastTime
@@ -132,9 +138,8 @@ function paint () {
     }
   }
   level.obstacles = level.obstacles.filter(a => a.type !== 'gone')
-  window.requestAnimationFrame(paint)
+  window.animationId = window.requestAnimationFrame(paint)
 }
-paint()
 
 const SQ_SIZE = 70
 function didItHit (side) {
@@ -164,6 +169,7 @@ async function connect () {
   audio.play()
   let wasLeft = false
   let wasRight = false
+  let slideDown = null
   for await (const entry of packets(port)) {
     if (entry.leftBtn) {
       left.classList.add('active')
@@ -184,6 +190,41 @@ async function connect () {
     }
     wasRight = entry.rightBtn
     targetTilt = entry.sliderPressed ? entry.sliderPos * 20 - 10 : 0
+    const currTime = audio.currentTime
+    if (entry.sliderPressed) {
+      if (slideDown === null) {
+        slideDown = {
+          time: currTime,
+          pos: entry.sliderPos
+        }
+      }
+    } else if (slideDown !== null) {
+      const diff = entry.sliderPos - slideDown.pos
+      const TIME_THRESHOLD = 0.3
+      if (Math.abs(diff) > 0.5 && currTime - slideDown.time < 0.2) {
+        const dir = diff > 0 ? 'right' : 'left'
+        console.log(dir)
+        const midpt = (slideDown.time + currTime) / 2
+        for (const obstacle of level.obstacles) {
+          if (obstacle.type !== 'qs-' + dir) {
+            continue
+          }
+          if (Math.abs(midpt - currTime) < TIME_THRESHOLD) {
+            obstacle.element.remove()
+            obstacle.type = 'gone'
+            addScore(
+              Math.exp(-(((midpt - currTime) / (TIME_THRESHOLD / 2)) ** 2)) *
+                300
+            )
+            break
+          }
+        }
+      }
+      slideDown = null
+    }
   }
 }
 document.addEventListener('click', connect, { once: true })
+
+reset()
+paint()
