@@ -139,6 +139,13 @@
         height: 100%;
         background-color: white;
       }
+      .particle {
+        position: fixed;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        box-sizing: border-box;
+        border-style: solid;
+      }
     </style>
   </head>
   <body>
@@ -155,6 +162,7 @@
       <span class="line"></span>
       <div id="status"></div>
     </div>
+    <div id="particles"></div>
     <div id="note">Click or tap anywhere to connect to the USB.</div>
     <button id="reset">restart</button>
     <script src="./main.js" type="module"></script>
