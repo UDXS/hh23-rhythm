@@ -19,14 +19,15 @@
           'Segoe UI Emoji', 'Segoe UI Symbol';
       }
       #wow {
-        height: 200vh;
+        height: 3200px;
         width: 200px;
         display: flex;
         position: fixed;
-        bottom: -20vh;
+        bottom: -160px;
         left: 50%;
-        transform: translateX(-50%) perspective(500px) translateZ(400px)
-          rotateX(30deg) rotateY(var(--tilt));
+        transform: translateX(-50%) perspective(500px) translateY(1600px)
+          rotateZ(calc(var(--tilt) * -0.1)) translateY(-1600px)
+          translateZ(400px) rotateX(30deg) rotateY(var(--tilt));
         transform-origin: bottom;
         --tilt: 0deg;
         gap: 1px;
@@ -39,17 +40,28 @@
         flex-direction: column;
         flex: 1 0 0;
         padding: 10px;
-        padding-bottom: 10vh;
+        padding-bottom: 80px;
+        position: relative;
       }
       .line {
         width: 1px;
         background-color: white;
       }
-      .target {
-        border: 1px dashed grey;
+      .square {
         aspect-ratio: 1 / 1;
-        width: 100%;
         border-radius: 5px;
+        width: 70px;
+      }
+      .target {
+        box-sizing: border-box;
+        border: 1px dashed grey;
+      }
+      .obstacle {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        background-color: deepskyblue;
       }
       .active {
         border: 1px solid yellow;
@@ -66,19 +78,29 @@
         max-width: 500px;
         margin: 0 auto;
         text-align: center;
-        top: 30vh;
+        top: 80px;
+      }
+      #score {
+        position: fixed;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 50px;
+        margin: 0;
+        top: 30px;
       }
     </style>
   </head>
   <body>
+    <h1 id="score"></h1>
     <div id="wow">
       <span class="line"></span>
-      <div class="row">
-        <div class="target" id="left"></div>
+      <div class="row" id="left-row">
+        <div class="square target" id="left"></div>
       </div>
       <span class="line"></span>
-      <div class="row">
-        <div class="target" id="right"></div>
+      <div class="row" id="right-row">
+        <div class="square target" id="right"></div>
       </div>
       <span class="line"></span>
     </div>
