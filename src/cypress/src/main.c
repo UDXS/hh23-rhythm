@@ -61,63 +61,66 @@ void handle_eror(uint32_t status)
 int main(void) {
   cy_rslt_t result;
   cyhal_spi_t sSPI;
+  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
+  printf("\x1b[2J\x1b[;H");
 #if defined(CY_DEVICE_SECURE)
   cyhal_wdt_t wdt_obj;
 
-  /* Clear watchdog timer so that it doesn't trigger a reset */
+  printf("Clear watchdog timer so that it doesn't trigger a reset\r\n");
   result = cyhal_wdt_init(&wdt_obj, cyhal_wdt_get_max_timeout_ms());
   CY_ASSERT(CY_RSLT_SUCCESS == result);
   cyhal_wdt_free(&wdt_obj);
 #endif
 
-  /* Initialize the device and board peripherals */
+  printf("Initialize the device and board peripherals\r\n");
   result = cybsp_init();
 
-  /* Board init failed. Stop program execution */
   if (result != CY_RSLT_SUCCESS) {
+	  printf("Board init failed. Stop program execution\r\n");
     CY_ASSERT(0);
   }
 
-  /* Enable global interrupts */
+  printf("Enable global interrupts\r\n");
   __enable_irq();
 
-  /* Initialize retarget-io to use the debug UART port. */
+  printf("Initialize retarget-io to use the debug UART port.\r\n");
   result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
   if (CYRET_SUCCESS != result) CY_ASSERT(0);
 
+  printf("init them led, capsense tuner, capsense itself\r\n");
   initialize_led();
   initialize_capsense_tuner();
   result = initialize_capsense();
 
   if (CYRET_SUCCESS != result) {
-    /* Halt the CPU if CapSense initialization failed */
+    printf("Halt the CPU if CapSense initialization failed\r\n");
     CY_ASSERT(0);
   }
 
-  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
-  printf("\x1b[2J\x1b[;H");
 
   printf("********************************************************\r\n"
 		 "help me lord\r\n"
 		 "********************************************************\r\n");
 
-  /* Initiate first scan */
+  printf("Initiate first scan\r\n");
   Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
 
 //  status = init_employee();
 //  if(status == INIT_FAILURE) CY_ASSERT(CY_ASSERT_FAILED);
 
   // https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
-  result = cyhal_spi_init(&sSPI,
-		  CYBSP_QSPI_D3 //CYBSP_SPI_MOSI
-		  ,CYBSP_QSPI_D2   //CYBSP_SPI_MISO
-		  ,CYBSP_QSPI_D1   //CYBSP_SPI_CLK
-		  ,CYBSP_QSPI_D0   //CYBSP_SPI_CS
-		  ,NULL,BITS_PER_FRAME,
-                              CYHAL_SPI_MODE_00_MSB,true);
-  handle_eror(result);
-  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
-  handle_eror(result);
+//  printf("SPI has been INITIATED\r\n");
+//  result = cyhal_spi_init(&sSPI,
+//		  CYBSP_QSPI_D3 //CYBSP_SPI_MOSI
+//		  ,CYBSP_QSPI_D2   //CYBSP_SPI_MISO
+//		  ,CYBSP_QSPI_D1   //CYBSP_SPI_CLK
+//		  ,CYBSP_QSPI_D0   //CYBSP_SPI_CS
+//		  ,NULL,BITS_PER_FRAME,
+//                              CYHAL_SPI_MODE_00_MSB,true);
+//  handle_eror(result);
+//  printf("the FREQUENCY !!!\r\n");
+//  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
+//  handle_eror(result);
 
 
   for (;;) {
