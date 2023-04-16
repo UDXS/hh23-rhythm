@@ -61,31 +61,34 @@ void handle_eror(uint32_t status)
 int main(void) {
   cy_rslt_t result;
   cyhal_spi_t sSPI;
-  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
-  printf("\x1b[2J\x1b[;H");
 #if defined(CY_DEVICE_SECURE)
   cyhal_wdt_t wdt_obj;
 
-  printf("Clear watchdog timer so that it doesn't trigger a reset\r\n");
+//  printf("Clear watchdog timer so that it doesn't trigger a reset\r\n");
   result = cyhal_wdt_init(&wdt_obj, cyhal_wdt_get_max_timeout_ms());
   CY_ASSERT(CY_RSLT_SUCCESS == result);
   cyhal_wdt_free(&wdt_obj);
 #endif
 
-  printf("Initialize the device and board peripherals\r\n");
+//  printf("Initialize the device and board peripherals\r\n");
   result = cybsp_init();
 
   if (result != CY_RSLT_SUCCESS) {
-	  printf("Board init failed. Stop program execution\r\n");
+	  //printf("Board init failed. Stop program execution\r\n");
     CY_ASSERT(0);
   }
 
-  printf("Enable global interrupts\r\n");
-  __enable_irq();
+  // DO NOT USE PRINTF BEFORE THIS POINT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  printf("Initialize retarget-io to use the debug UART port.\r\n");
+//  printf("Initialize retarget-io to use the debug UART port.\r\n");
   result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
   if (CYRET_SUCCESS != result) CY_ASSERT(0);
+
+  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
+  printf("\x1b[2J\x1b[;H");
+
+  printf("Enable global interrupts\r\n");
+  __enable_irq();
 
   printf("init them led, capsense tuner, capsense itself\r\n");
   initialize_led();
@@ -122,6 +125,7 @@ int main(void) {
 //  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
 //  handle_eror(result);
 
+  printf("we gaming\r\n");
 
   for (;;) {
     if (capsense_scan_complete) {
@@ -161,7 +165,7 @@ static void process_touch(void) {
   static uint32_t button0_status_prev;
   static uint32_t button1_status_prev;
   static uint16_t slider_pos_prev;
-  static uint16_t slider_status_prev;
+  static uint8_t slider_status_prev;
   static led_data_t led_data = {LED_ON, LED_MAX_BRIGHTNESS};
 
   /* Get button 0 status */
@@ -214,24 +218,21 @@ static void process_touch(void) {
 //		for (int i = 0; i < slider_touch_status; i++) {
 //		  printf("slider_touch_info->ptrPosition[%i].x = %u\r\n", i, slider_touch_info->ptrPosition[i].x);
 //		}
-	  if (slider_touch_status) {
+	  if (button0_status != 0) printf("LEFT");
+	  else printf("left");
+	  printf(" ");
+	  if (button1_status != 0) printf("RIGHT");
+	  else printf("right");
+	  printf(" ");
+	  if (slider_touch_status != 0) {
 		  int slider = slider_pos / 5;
 		  for (int i = 0; i < slider; i++) {
 			  printf("=");
 		  }
 		  for (int i = slider; i < 60; i++) {
-			  printf(" ");
-		  }
-	  } else {
-		  for (int i = 0; i < 60; i++) {
 			  printf(".");
 		  }
 	  }
-	  printf(" ");
-	  if (button0_status != 0) printf("LEFT");
-	  else printf("left");
-	  if (button1_status != 0) printf("RIGHT");
-	  else printf("right");
 	  printf("\r\n");
 //	  uint32_t     transmit_data = ();
 //	  if (CY_RSLT_SUCCESS == cyhal_spi_send(&sSPI, transmit_data)) {
