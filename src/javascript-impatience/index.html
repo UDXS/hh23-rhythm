@@ -11,19 +11,78 @@
     <script src="/sheep3.js" charset="utf-8"></script>
 
     <style>
+      body {
+        background-color: black;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji',
+          'Segoe UI Emoji', 'Segoe UI Symbol';
+      }
       #wow {
-        height: 100px;
-        background-color: firebrick;
+        height: 200vh;
+        width: 200px;
+        display: flex;
+        position: fixed;
+        bottom: -20vh;
+        left: 50%;
+        transform: translateX(-50%) perspective(500px) translateZ(400px)
+          rotateX(30deg) rotateY(var(--tilt));
+        transform-origin: bottom;
+        --tilt: 0deg;
+        gap: 1px;
+        padding: 0 1px;
+      }
+      .row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-direction: column;
+        flex: 1 0 0;
+        padding: 10px;
+        padding-bottom: 10vh;
+      }
+      .line {
+        width: 1px;
+        background-color: white;
+      }
+      .target {
+        border: 1px dashed grey;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        border-radius: 5px;
+      }
+      .active {
+        border: 1px solid yellow;
+        box-shadow: 0 0 10px yellow, inset 0 0 10px yellow;
       }
       #lmao {
         text-align: center;
         font-size: 100px;
       }
+      #note {
+        position: fixed;
+        left: 0;
+        right: 0;
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: center;
+        top: 30vh;
+      }
     </style>
   </head>
   <body>
-    <div id="wow"></div>
-    <p id="lmao"></p>
+    <div id="wow">
+      <span class="line"></span>
+      <div class="row">
+        <div class="target" id="left"></div>
+      </div>
+      <span class="line"></span>
+      <div class="row">
+        <div class="target" id="right"></div>
+      </div>
+      <span class="line"></span>
+    </div>
+    <div id="note">Click or tap anywhere to connect to the USB.</div>
     <script src="./main.js" type="module"></script>
   </body>
 </html>
