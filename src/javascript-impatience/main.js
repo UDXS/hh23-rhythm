@@ -86,6 +86,17 @@ const rightRow = document.getElementById('right-row')
 const left = document.getElementById('left')
 const right = document.getElementById('right')
 const scoreDisplay = document.getElementById('score')
+const statussy = document.getElementById('status')
+// again for vs code typing
+const wozers = [{ height: 5, elem: document.body }]
+wozers.splice(0, 1)
+for (let i = 0; i < 20; i++) {
+  const elem = Object.assign(document.createElement('div'), {
+    className: 'wowzers'
+  })
+  statussy.append(elem)
+  wozers.push({ height: 0, elem })
+}
 
 let tilt = 0
 let targetTilt = 0
@@ -110,6 +121,7 @@ function addScore (diff) {
 
 let lastTime = Date.now()
 window.animationId = null
+let target = null
 function paint () {
   const now = Date.now()
   const elapsed = now - lastTime
@@ -138,6 +150,21 @@ function paint () {
     }
   }
   level.obstacles = level.obstacles.filter(a => a.type !== 'gone')
+  const W = 3 / 30
+  for (const [i, wozer] of wozers.entries()) {
+    const targtarg = target
+      ? Math.exp(-(((i / (wozers.length - 1) - target.pos) * 4) ** 2)) *
+          (1 - W) +
+        W
+      : W
+    if (wozer.height > targtarg) {
+      wozer.height += (targtarg - wozer.height) * 0.1
+    } else {
+      wozer.height = targtarg
+    }
+    wozer.elem.style.height = wozer.height * 30 + 'px'
+    wozer.elem.style.opacity = wozer.height / 2 + 0.25
+  }
   window.animationId = window.requestAnimationFrame(paint)
 }
 
@@ -222,6 +249,7 @@ async function connect () {
       }
       slideDown = null
     }
+    target = entry.sliderPressed ? { pos: entry.sliderPos } : null
   }
 }
 document.addEventListener('click', connect, { once: true })
