@@ -2,12 +2,11 @@
 
 import { SerialPort } from 'serialport'
 
-const [, portPath] = process.argv
-
+const [, , portPath] = process.argv
 const port = new SerialPort({
   path: portPath,
   baudRate: 115200
 })
-port.on('readable', function () {
+port.on('readable', () => {
   console.log(port.read())
 })
