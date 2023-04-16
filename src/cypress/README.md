@@ -24,7 +24,7 @@ To see the terminal,
 6. Set Speed to 115200.
 7. Click "Open."
 
-The board partakes as a SPI employee. It offers 32-bit data packets:
+The board partakes as a SPI employee. It offers 12-bit data packets in 32-bit words:
 
 ```sv
 data[11:3] // slider_pos (9 bits), position of finger between 0 (left) and 300 (right)
