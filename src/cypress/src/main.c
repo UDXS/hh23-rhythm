@@ -6,6 +6,10 @@
 #include "cyhal.h"
 #include "cy_retarget_io.h"
 #include "led.h"
+//#include <inttypes.h>
+//#include "cy_pdl.h"
+//#include "cybsp.h"
+//#include "SpiEpmployee.h"
 
 #define CAPSENSE_INTR_PRIORITY (7u)
 #define EZI2C_INTR_PRIORITY                                                    \
@@ -33,6 +37,19 @@ void handle_error(void) {
   CY_ASSERT(0);
 }
 
+// https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
+/* SPI baud rate in Hz */
+#define SPI_FREQ_HZ                (1000000UL)
+/* SPI transfer bits per frame */
+#define BITS_PER_FRAME             (8)
+void handle_eror(uint32_t status)
+{
+    if (status != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+}
+
 /**
  * System entrance point. This function performs
  *
@@ -43,48 +60,73 @@ void handle_error(void) {
  */
 int main(void) {
   cy_rslt_t result;
+  cyhal_spi_t sSPI;
 #if defined(CY_DEVICE_SECURE)
   cyhal_wdt_t wdt_obj;
 
-  /* Clear watchdog timer so that it doesn't trigger a reset */
+//  printf("Clear watchdog timer so that it doesn't trigger a reset\r\n");
   result = cyhal_wdt_init(&wdt_obj, cyhal_wdt_get_max_timeout_ms());
   CY_ASSERT(CY_RSLT_SUCCESS == result);
   cyhal_wdt_free(&wdt_obj);
 #endif
 
-  /* Initialize the device and board peripherals */
+//  printf("Initialize the device and board peripherals\r\n");
   result = cybsp_init();
 
-  /* Board init failed. Stop program execution */
   if (result != CY_RSLT_SUCCESS) {
+	  //printf("Board init failed. Stop program execution\r\n");
     CY_ASSERT(0);
   }
 
-  /* Enable global interrupts */
-  __enable_irq();
+  // DO NOT USE PRINTF BEFORE THIS POINT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  /* Initialize retarget-io to use the debug UART port. */
+//  printf("Initialize retarget-io to use the debug UART port.\r\n");
   result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
   if (CYRET_SUCCESS != result) CY_ASSERT(0);
 
+  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
+  printf("\x1b[2J\x1b[;H");
+
+  printf("Enable global interrupts\r\n");
+  __enable_irq();
+
+  printf("init them led, capsense tuner, capsense itself\r\n");
   initialize_led();
   initialize_capsense_tuner();
   result = initialize_capsense();
 
   if (CYRET_SUCCESS != result) {
-    /* Halt the CPU if CapSense initialization failed */
+    printf("Halt the CPU if CapSense initialization failed\r\n");
     CY_ASSERT(0);
   }
 
-  /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen. */
-  printf("\x1b[2J\x1b[;H");
 
   printf("********************************************************\r\n"
 		 "help me lord\r\n"
 		 "********************************************************\r\n");
 
-  /* Initiate first scan */
+  printf("Initiate first scan\r\n");
   Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
+
+//  status = init_employee();
+//  if(status == INIT_FAILURE) CY_ASSERT(CY_ASSERT_FAILED);
+
+  // https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
+  printf("SPI to be INITIATED\r\n");
+  // https://infineon.github.io/TARGET_CY8CPROTO-062-4343W/html/group__group__bsp__pins__comm.html
+  result = cyhal_spi_init(&sSPI,
+		  CYBSP_QSPI_D0 //CYBSP_SPI_MOSI			11.6 CYBSP_QSPI_D0
+		  ,CYBSP_QSPI_D1   //CYBSP_SPI_MISO			11.5 CYBSP_QSPI_D1
+		  ,CYBSP_QSPI_SCK   //CYBSP_SPI_CLK			11.7 SPI_CLK
+		  ,CYBSP_QSPI_SS    //CYBSP_SPI_CS			11.2 SPI_SEL
+		  ,NULL,BITS_PER_FRAME,
+                              CYHAL_SPI_MODE_00_MSB,true);
+  handle_eror(result);
+  printf("the FREQUENCY !!!\r\n");
+  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
+  handle_eror(result);
+
+  printf("we gaming\r\n");
 
   for (;;) {
     if (capsense_scan_complete) {
@@ -104,6 +146,8 @@ int main(void) {
 
       capsense_scan_complete = false;
     }
+
+
   }
 }
 
@@ -122,6 +166,7 @@ static void process_touch(void) {
   static uint32_t button0_status_prev;
   static uint32_t button1_status_prev;
   static uint16_t slider_pos_prev;
+  static uint8_t slider_status_prev;
   static led_data_t led_data = {LED_ON, LED_MAX_BRIGHTNESS};
 
   /* Get button 0 status */
@@ -167,32 +212,44 @@ static void process_touch(void) {
 
   }
 
-  if (button0_status != button0_status_prev || button1_status_prev != button1_status || slider_pos_prev != slider_pos) {
+  if (button0_status != button0_status_prev || button1_status_prev != button1_status || slider_pos_prev != slider_pos
+		  || slider_status_prev != slider_touch_status) {
 //	  printf("\r\nbutton0_status=%lu, button1_status=%lu, slider_pos=%u, slider_touch_status=%u, led_update_req=%u\r\n",
 //			  button0_status, button1_status, slider_pos, slider_touch_status, led_update_req);
 //		for (int i = 0; i < slider_touch_status; i++) {
 //		  printf("slider_touch_info->ptrPosition[%i].x = %u\r\n", i, slider_touch_info->ptrPosition[i].x);
 //		}
-	  int slider = slider_pos / 5;
-	  for (int i = 0; i < slider; i++) {
-		  printf("=");
-	  }
-	  for (int i = slider; i < 60; i++) {
-		  printf(" ");
-	  }
+	  if (button0_status != 0) printf("LEFT");
+	  else printf("left");
 	  printf(" ");
-	  if (button0_status != 0) printf(" LEFT");
-	  else printf(" left");
-	  if (button1_status != 0) printf(" RIGHT");
-	  else printf(" right");
+	  if (button1_status != 0) printf("RIGHT");
+	  else printf("right");
+	  printf(" ");
+	  if (slider_touch_status != 0) {
+		  int slider = slider_pos / 5;
+		  for (int i = 0; i < slider; i++) {
+			  printf("=");
+		  }
+		  for (int i = slider; i < 60; i++) {
+			  printf(".");
+		  }
+	  }
 	  printf("\r\n");
+	  uint32_t     transmit_data = slider_pos << 3
+			  | (slider_touch_status & 0b1) << 2
+			  | (button1_status & 0b1) << 1
+			  | (button0_status & 0b1);
+	  // "- In Slave mode, MISO pin required to be non-NC for this API to operate"
+	  if (CY_RSLT_SUCCESS == cyhal_spi_send(&sSPI, transmit_data)) {
+
+	  }
   }
 
   /* Update previous touch status */
   button0_status_prev = button0_status;
   button1_status_prev = button1_status;
   slider_pos_prev = slider_pos;
-
+  slider_status_prev = slider_touch_status;
 
 }
 
