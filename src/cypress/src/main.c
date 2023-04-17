@@ -112,19 +112,19 @@ int main(void) {
 //  if(status == INIT_FAILURE) CY_ASSERT(CY_ASSERT_FAILED);
 
   // https://github.com/Infineon/mtb-example-hal-spi-slave/blob/master/main.c
-  printf("SPI to be INITIATED\r\n");
-  // https://infineon.github.io/TARGET_CY8CPROTO-062-4343W/html/group__group__bsp__pins__comm.html
-  result = cyhal_spi_init(&sSPI,
-		  CYBSP_QSPI_D0 //CYBSP_SPI_MOSI			11.6 CYBSP_QSPI_D0
-		  ,CYBSP_QSPI_D1   //CYBSP_SPI_MISO			11.5 CYBSP_QSPI_D1
-		  ,CYBSP_QSPI_SCK   //CYBSP_SPI_CLK			11.7 SPI_CLK
-		  ,CYBSP_QSPI_SS    //CYBSP_SPI_CS			11.2 SPI_SEL
-		  ,NULL,BITS_PER_FRAME,
-                              CYHAL_SPI_MODE_00_MSB,true);
-  handle_eror(result);
-  printf("the FREQUENCY !!!\r\n");
-  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
-  handle_eror(result);
+//  printf("SPI to be INITIATED\r\n");
+//  // https://infineon.github.io/TARGET_CY8CPROTO-062-4343W/html/group__group__bsp__pins__comm.html
+//  result = cyhal_spi_init(&sSPI,
+//		  CYBSP_QSPI_D0 //CYBSP_SPI_MOSI			11.6 CYBSP_QSPI_D0
+//		  ,CYBSP_QSPI_D1   //CYBSP_SPI_MISO			11.5 CYBSP_QSPI_D1
+//		  ,CYBSP_QSPI_SCK   //CYBSP_SPI_CLK			11.7 SPI_CLK
+//		  ,CYBSP_QSPI_SS    //CYBSP_SPI_CS			11.2 SPI_SEL
+//		  ,NULL,BITS_PER_FRAME,
+//                              CYHAL_SPI_MODE_00_MSB,true);
+//  handle_eror(result);
+//  printf("the FREQUENCY !!!\r\n");
+//  result = cyhal_spi_set_frequency(&sSPI, SPI_FREQ_HZ);
+//  handle_eror(result);
 
   printf("we gaming\r\n");
 
@@ -219,11 +219,16 @@ static void process_touch(void) {
 //		for (int i = 0; i < slider_touch_status; i++) {
 //		  printf("slider_touch_info->ptrPosition[%i].x = %u\r\n", i, slider_touch_info->ptrPosition[i].x);
 //		}
-	  if (button0_status != 0) printf("LEFT");
-	  else printf("left");
+	  uint32_t     transmit_data = slider_pos << 3
+			  | (slider_touch_status & 0b1) << 2
+			  | (button1_status & 0b1) << 1
+			  | (button0_status & 0b1);
+
+	  if (button0_status != 0) printf("LL");
+	  else printf("ll");
 	  printf(" ");
-	  if (button1_status != 0) printf("RIGHT");
-	  else printf("right");
+	  if (button1_status != 0) printf("RR");
+	  else printf("rr");
 	  printf(" ");
 	  if (slider_touch_status != 0) {
 		  int slider = slider_pos / 5;
@@ -233,16 +238,20 @@ static void process_touch(void) {
 		  for (int i = slider; i < 60; i++) {
 			  printf(".");
 		  }
+	  } else {
+		  for (int i = 0; i < 60; i++) {
+			  printf(" ");
+		  }
+	  }
+	  printf(" ");
+	  for (int i = 11; i >= 0; i--) {
+		  printf("%i", (transmit_data >> i) & 0b1 ? 1 : 0);
 	  }
 	  printf("\r\n");
-	  uint32_t     transmit_data = slider_pos << 3
-			  | (slider_touch_status & 0b1) << 2
-			  | (button1_status & 0b1) << 1
-			  | (button0_status & 0b1);
 	  // "- In Slave mode, MISO pin required to be non-NC for this API to operate"
-	  if (CY_RSLT_SUCCESS == cyhal_spi_send(&sSPI, transmit_data)) {
-
-	  }
+//	  if (CY_RSLT_SUCCESS == cyhal_spi_send(&sSPI, transmit_data)) {
+//
+//	  }
   }
 
   /* Update previous touch status */
